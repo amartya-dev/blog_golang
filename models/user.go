@@ -13,12 +13,12 @@ import (
 
 // User represents the user
 type User struct {
-	Name       string    `json:"name"`
-	Email      string    `json:"email"`
-	ProfilePic os.File   `json:"profile_pic"`
-	Password   string    `json:"password"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	Name       string    `json:"name" bson:"name"`
+	Email      string    `json:"email" bson:"email"`
+	ProfilePic os.File   `json:"profile_pic" bson:"profile_pic"`
+	Password   string    `json:"password" bson:"password"`
+	CreatedAt  time.Time `json:"created_at" bson:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at" bson:"updated_at"`
 }
 
 // Hash is used to hash password strings

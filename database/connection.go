@@ -11,12 +11,12 @@ import (
 
 // Connection is to be used for CRUD operations on the mongodb database
 type Connection struct {
-	hostname string
-	port     string
-	username string
-	password string
-	dbname   string
-	client   *mongo.Client
+	Hostname string
+	Port     string
+	Username string
+	Password string
+	Dbname   string
+	Client   *mongo.Client
 	cancel   context.CancelFunc
 	context  context.Context
 }
@@ -25,10 +25,10 @@ type Connection struct {
 func (connection *Connection) ConnectToDb() bool {
 	clientOptions := options.Client().ApplyURI(
 		"mongodb://" +
-			connection.username +
-			":" + connection.password +
-			"@" + connection.hostname +
-			":" + connection.port,
+			connection.Username +
+			":" + connection.Password +
+			"@" + connection.Hostname +
+			":" + connection.Port,
 	)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -41,7 +41,7 @@ func (connection *Connection) ConnectToDb() bool {
 		}
 	}()
 
-	connection.client = client
+	connection.Client = client
 	connection.cancel = cancel
 	connection.context = ctx
 
@@ -61,23 +61,23 @@ func (connection *Connection) Close() {
 // GetCollection returns the collection object using the collection name
 func (connection *Connection) GetCollection(collectionName string) *mongo.Collection {
 
-	if connection.client != nil {
-		return connection.client.Database(connection.dbname).Collection(collectionName)
+	if connection.Client != nil {
+		return connection.Client.Database(connection.Dbname).Collection(collectionName)
 	}
 
 	return nil
 }
 
 // AddRecord can be used to add records to any collection
-func (connection *Connection) AddRecord(collection *mongo.Collection, record bson.D) bool {
+func (connection *Connection) AddRecord(collection *mongo.Collection, record bson.M) error {
 	_, err := collection.InsertOne(connection.context, record)
 
 	if err != nil {
 		log.Fatal(err)
-		return false
+		return err
 	}
 
-	return true
+	return nil
 }
 
 // UpdateRecord searches for and updates records based on provided conditions
@@ -115,7 +115,7 @@ func (connection *Connection) GetRecords(collection *mongo.Collection, condition
 	// get a list of all returned documents and return them
 	// see the mongo.Cursor documentation for more examples of using cursors
 	var results []bson.M
-	if err = cursor.All(context.TODO(), &results); err != nil {
+	if err = cursor.All(connection.context, &results); err != nil {
 		log.Fatal(err)
 	}
 
